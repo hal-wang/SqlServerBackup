@@ -1,0 +1,10 @@
+{
+	"dependencies": {
+		"@unocss/postcss": "^0.59.4",
+		"postcss-cli": "^11.0.0",
+		"unocss": "^0.59.4"
+	},
+	"scripts": {
+		"buildcss": "postcss wwwroot/css/app.css -o wwwroot/css/app.min.css"
+	}
+}

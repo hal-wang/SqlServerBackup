@@ -1,0 +1,145 @@
+﻿<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+@if (Logined)
+{
+    <div class="w-full h-full flex">
+        <div class="flex-1 w-0 flex flex-col">
+            <div class="text-xl font-bold flex justify-center py-2">数据库列表</div>
+            <div class="flex-1 h-0 overflow-y-auto">
+                <MudList Clickable="true" @bind-SelectedValue="SelectedDatabase">
+                    @foreach (var database in Databases)
+                    {
+                        <MudListItem Value="@database" Class="py-0">
+                            <div class="flex justify-between">
+                                <div class="flex-1 w-0 truncate flex items-center">@database</div>
+                                <MudButton Disabled="@(!string.IsNullOrEmpty(BackupLoading))" Color="Color.Primary" OnClick="()=>Backup(database)">
+                                    @if (database == BackupLoading)
+                                    {
+                                        <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                                        <MudText Class="ms-2">正在备份</MudText>
+                                    }
+                                    else
+                                    {
+                                        <MudText>备份</MudText>
+                                    }
+                                </MudButton>
+                            </div>
+                        </MudListItem>
+                    }
+                </MudList>
+            </div>
+            @if (!string.IsNullOrEmpty(SelectedDatabase as string))
+            {
+                <MudAlert Severity="Severity.Success">已选数据库：@SelectedDatabase</MudAlert>
+            }
+        </div>
+        <div class="w-2 bg-gray-200"></div>
+        <div class="flex-1 w-0 flex flex-col">
+            <div class="text-xl font-bold flex justify-center py-2">备份文件列表</div>
+            <div class="flex-1 h-0 overflow-y-auto">
+                <MudList>
+                    @foreach (var file in BackupFiles)
+                    {
+                        <MudListItem Class="py-0">
+                            <div class="flex justify-between">
+                                <MudText class="flex-1 w-0 truncate flex items-center" title="@file">
+                                    @file
+                                </MudText>
+                                <MudButton Disabled="@(!string.IsNullOrEmpty(RestoreLoading))" Color="Color.Primary" OnClick="()=>Restore(file)">
+                                    @if (file == RestoreLoading)
+                                    {
+                                        <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                                        <MudText Class="ms-2">还原</MudText>
+                                    }
+                                    else
+                                    {
+                                        <MudText>还原</MudText>
+                                    }
+                                </MudButton>
+                                <MudButton Disabled="@(!string.IsNullOrEmpty(DeleteLoading))" Color="Color.Error" OnClick="()=>Delete(file)">
+                                    @if (file == DeleteLoading)
+                                    {
+                                        <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                                        <MudText Class="ms-2">删除</MudText>
+                                    }
+                                    else
+                                    {
+                                        <MudText>删除</MudText>
+                                    }
+                                </MudButton>
+                            </div>
+                        </MudListItem>
+                    }
+                </MudList>
+            </div>
+        </div>
+
+
+        <div class="absolute left-0 w-full top-2 flex justify-center overflow-visible">
+            <div Class="bg-white">
+                <MudButton Color="Color.Error" OnClick="()=>Logout()">
+                    退出登录
+                </MudButton>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="w-full h-full flex items-center justify-center">
+        <MudButton Disabled="@Logining" Variant="Variant.Filled" Color="Color.Primary" OnClick="OpenLogin">
+            @if (Logining)
+            {
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                <MudText Class="ms-2">正在登录</MudText>
+            }
+            else
+            {
+                <MudText>登录数据库</MudText>
+            }
+        </MudButton>
+    </div>
+}
+
+<MudDialog @bind-IsVisible="IsLoginDialogOpened">
+    <TitleContent>
+        <span class="text-xl">登录数据库</span>
+    </TitleContent>
+    <DialogContent>
+        <MudForm Model="@loginModel" @ref="loginForm" Class="min-w-80">
+            <MudTextField T="string" Label="地址"
+                          Required="true"
+                          Variant="Variant.Outlined"
+                          @bind-Value="loginModel.Address"
+                          RequiredError="请输入数据库地址" />
+            <MudTextField T="string"
+                          Label="用户名"
+                          Required="true"
+                          Variant="Variant.Outlined"
+                          @bind-Value="loginModel.UserName"
+                          RequiredError="请输入用户名" />
+            <MudTextField T="string"
+                          Label="密码"
+                          InputType="InputType.Password"
+                          Required="true"
+                          Variant="Variant.Outlined"
+                          @bind-Value="loginModel.Password"
+                          RequiredError="请输入密码" />
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Disabled="@Logining" Variant="Variant.Filled" Color="Color.Primary" OnClick="Login" Class="px-10">
+            @if (Logining)
+            {
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                <MudText Class="ms-2">登录</MudText>
+            }
+            else
+            {
+                <MudText>登录</MudText>
+            }
+        </MudButton>
+    </DialogActions>
+</MudDialog>
