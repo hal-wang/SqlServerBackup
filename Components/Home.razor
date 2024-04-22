@@ -14,16 +14,8 @@
                         <MudListItem Value="@database" Class="py-0">
                             <div class="flex justify-between">
                                 <div class="flex-1 w-0 truncate flex items-center">@database</div>
-                                <MudButton Disabled="@(!string.IsNullOrEmpty(BackupLoading))" Color="Color.Primary" OnClick="()=>Backup(database)">
-                                    @if (database == BackupLoading)
-                                    {
-                                        <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
-                                        <MudText Class="ms-2">正在备份</MudText>
-                                    }
-                                    else
-                                    {
-                                        <MudText>备份</MudText>
-                                    }
+                                <MudButton Color="Color.Primary" OnClick="()=>OpenBackupDialog(database)">
+                                    备份
                                 </MudButton>
                             </div>
                         </MudListItem>
@@ -139,6 +131,34 @@ else
             else
             {
                 <MudText>登录</MudText>
+            }
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+<MudDialog @bind-IsVisible="IsRemarkDialogOpened" Options="@(new (){CloseButton=true})">
+    <TitleContent>
+        <span class="text-xl">备份数据库</span>
+    </TitleContent>
+    <DialogContent>
+        <span class="ml-1 mb-1">@SelectedDatabase</span>
+        <MudForm Model="@loginModel" @ref="loginForm" Class="min-w-80">
+            <MudTextField T="string" Label="备注（可选）"
+                          Required="false"
+                          Variant="Variant.Outlined"
+                          @bind-Value="Remark" />
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Disabled="@BackupLoading" Variant="Variant.Filled" Color="Color.Primary" OnClick="()=>HandleBackup()">
+            @if (BackupLoading)
+            {
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                <MudText Class="ms-2">备份</MudText>
+            }
+            else
+            {
+                <MudText>备份</MudText>
             }
         </MudButton>
     </DialogActions>

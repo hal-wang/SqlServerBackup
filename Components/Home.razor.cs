@@ -1,5 +1,6 @@
 ﻿using H.Tools.Data;
 using Microsoft.AspNetCore.Components;
+using Microsoft.IdentityModel.Tokens;
 using MudBlazor;
 using SqlServerBackup.Services;
 using System.ComponentModel.DataAnnotations;
@@ -153,17 +154,28 @@ public partial class Home
 
     }
 
-    public string? BackupLoading { get; set; }
-    public async Task Backup(string database)
+    public bool IsRemarkDialogOpened { get; set; } = false;
+    public void OpenBackupDialog(string database)
     {
-        if (!string.IsNullOrEmpty(BackupLoading)) return;
-
         SelectedDatabase = database;
-        BackupLoading = database;
+        IsRemarkDialogOpened = true;
+        StateHasChanged();
+    }
+
+    public bool BackupLoading { get; set; } = false;
+    public async Task HandleBackup()
+    {
+        if (BackupLoading) return;
+
+        var database = SelectedDatabase as string;
+        if (string.IsNullOrEmpty(database)) return;
+
+        BackupLoading = true;
+        StateHasChanged();
+
         try
         {
             await DatabaseService.ExecuteNonQueryAsync(CreateBackupSql(database));
-
         }
         catch (Exception ex)
         {
@@ -172,10 +184,13 @@ public partial class Home
         }
         finally
         {
-            BackupLoading = null;
+            BackupLoading = false;
         }
 
+        IsRemarkDialogOpened = false;
         Remark = string.Empty;
+        StateHasChanged();
+
         Snackbar.Add("备份完成", Severity.Success, config =>
         {
             config.ShowCloseIcon = false;
